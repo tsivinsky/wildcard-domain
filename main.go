@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/proxy"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/tsivinsky/array"
 )
@@ -73,7 +74,11 @@ func main() {
 			return NewApiError(c, 404, errors.New("No item found"))
 		}
 
-		return c.JSON(item)
+		if err := proxy.Do(c, item.Source); err != nil {
+			return NewApiError(c, 500, errors.New("can't proxy it"))
+		}
+
+		return NewApiError(c, 500, fmt.Errorf("Couldn't proxy %s", item.Source))
 	})
 
 	log.Fatal(app.Listen(":5000"))
