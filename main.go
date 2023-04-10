@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -74,7 +75,14 @@ func main() {
 			return NewApiError(c, 404, errors.New("No item found"))
 		}
 
-		if err := proxy.Do(c, item.Source); err != nil {
+		source := item.Source
+		if strings.HasSuffix(source, "/") {
+			source = strings.TrimSuffix(source, "/")
+		}
+
+		fullUrl := fmt.Sprintf("%s%s", source, c.Path())
+
+		if err := proxy.Do(c, fullUrl); err != nil {
 			return NewApiError(c, 500, errors.New("can't proxy it"))
 		}
 
