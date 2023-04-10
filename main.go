@@ -32,7 +32,7 @@ type Item struct {
 func main() {
 	app := fiber.New()
 
-	items := []*Item{}
+	items := []Item{}
 
 	app.Use(cors.New())
 	app.Use(recover.New())
@@ -48,7 +48,7 @@ func main() {
 			return NewApiError(c, 400, errors.New("No 'item' or 'source' in body"))
 		}
 
-		items = append(items, &Item{
+		items = append(items, Item{
 			Name:   item.Name,
 			Source: item.Source,
 		})
@@ -60,23 +60,16 @@ func main() {
 
 	app.All("/", func(c *fiber.Ctx) error {
 		subdomains := c.Subdomains()
-		fmt.Printf("subdomains: %+v\n", subdomains)
 		if len(subdomains) == 0 {
 			return NewApiError(c, 400, errors.New("no subdomain"))
 		}
 
 		subdomain := subdomains[0]
-		fmt.Printf("subdomain: %v\n", subdomain)
 
-		item := array.Find(items, func(item *Item, i int) bool {
-			fmt.Printf("item: %v\n", item)
-			fmt.Printf("(*item): %v\n", (*item))
-			return (*item).Name == subdomain
+		item := array.Find(items, func(item Item, i int) bool {
+			return item.Name == subdomain
 		})
-		fmt.Printf("outside array.Find()")
-		fmt.Printf("item: %v\n", item)
-		fmt.Printf("(*item): %v\n", (*item))
-		if item == nil {
+		if item.Name == "" {
 			return NewApiError(c, 404, errors.New("No item found"))
 		}
 
