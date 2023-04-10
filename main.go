@@ -59,7 +59,7 @@ func main() {
 		})
 	})
 
-	app.All("/", func(c *fiber.Ctx) error {
+	app.All("*", func(c *fiber.Ctx) error {
 		subdomains := c.Subdomains()
 		if len(subdomains) == 0 {
 			return NewApiError(c, 400, errors.New("no subdomain"))
