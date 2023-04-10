@@ -78,7 +78,9 @@ func main() {
 			return NewApiError(c, 500, errors.New("can't proxy it"))
 		}
 
-		return NewApiError(c, 500, fmt.Errorf("Couldn't proxy %s", item.Source))
+		c.Response().Header.Del(fiber.HeaderServer)
+
+		return nil
 	})
 
 	log.Fatal(app.Listen(":5000"))
